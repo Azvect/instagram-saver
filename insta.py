@@ -25,6 +25,9 @@ def exec(max_id):
     if not os.path.exists('insta'):
         os.makedirs('insta')
     for i in data['items']:
+        # Check if i['media']['code'] is already downloaded. If so then skip
+        if os.path.exists('insta/' + i['media']['code'] + '.jpg') or os.path.exists('insta/' + i['media']['code'] + '.mp4'):
+            continue
         time.sleep(1)
         i = i['media']
         # Download images
@@ -33,16 +36,28 @@ def exec(max_id):
         # Download videos
         elif i['media_type'] == 2:
             download(i['video_versions'][0]['url'], 'insta/' + i['code'] + '.mp4')
-        # Print error if media type is not 1 or 2 (More than 1 image or video)
-        else:
-            print('Unknown media type')
-            print('Media type: ' + str(i['media_type']))
-            print('The url is: ' + i['code'])
+        # Download carousel
+        elif i['media_type'] == 8:
+            mainname = i['code']
+            # Create directory for carousel with code as name
+            if not os.path.exists('insta/' + mainname):
+                os.makedirs('insta/' + mainname)
+            for j in i['carousel_media']:
+                # Download images with incrementing name
+                if j['media_type'] == 1:
+                    download(j['image_versions2']['candidates'][0]['url'], 'insta/' + mainname + '/' + str(j['id']) + '.jpg')
+                # Download videos with incrementing name
+                elif j['media_type'] == 2:
+                    download(j['video_versions'][0]['url'], 'insta/' + mainname + '/' + str(j['id']) + '.mp4')
         # if last item then return max_id
-    return data['next_max_id']
+    # Check if next_max_id is None
+    if 'next_max_id' not in data:
+        return None
+    else:
+        return data['next_max_id']
 
 # Ask for cookies
-cookies = input('Enter cookies: ')
+cookies = input('Enter you cookie: ')
 # Get csrftoken from cookies
 csrfstart = cookies.find('csrftoken=') + 10
 csrfend = cookies[csrfstart:].find(';')
