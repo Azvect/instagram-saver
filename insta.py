@@ -12,8 +12,6 @@ def download(url, file_name):
 def exec(max_id):
     url = 'https://www.instagram.com/api/v1/feed/saved/posts/?max_id=' + max_id
     # Ask for cookies and csrftoken
-    cookies = input('Enter cookies: ')
-    csrftoken = input('Enter csrftoken: ')
     headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36',
         'x-ig-app-id': '936619743392459',
@@ -42,6 +40,13 @@ def exec(max_id):
             print('The url is: ' + i['code'])
         # if last item then return max_id
     return data['next_max_id']
+
+# Ask for cookies
+cookies = input('Enter cookies: ')
+# Get csrftoken from cookies
+csrfstart = cookies.find('csrftoken=') + 10
+csrfend = cookies[csrfstart:].find(';')
+csrftoken = cookies[csrfstart:csrfstart + csrfend]
 
 # Run exec with returned max_id until max_id is None
 max_id = ''
